@@ -99,11 +99,12 @@ class Button extends Item {
 }
 
 class Select extends Item {
-    constructor(label, name, options) {
+    constructor(label, name, options, def) {
         super();
         this.name = name;
         this.label = label;
         this.options = options;
+        this.defaultvalue = def;
         return this;
     }
     value = () => {
