@@ -1,0 +1,319 @@
+@use "sass:map";
+
+$theme-colors: (
+   "primary" : #626ED4,
+   "secondary" : #22b64e,
+   "tertiary" : #343549,
+   "symptoms" : #626ED4,
+   "precautions" : #22b64e,
+   "testing" : #343549,
+   "success": #2AA39A,
+   "danger": #EC4561,
+   "warning": #F8B425,
+   "info": #38A5F8
+);
+
+$back: lightgrey;
+
+* { box-sizing: border-box; }
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: url("/images/hospital1.jpg") no-repeat center center fixed;
+    
+    background-size: cover;
+    margin: 0.5em;
+}
+
+
+.btn{
+    display: inline-block;
+  
+    padding: .375rem .75rem;
+    margin-right: 1rem;
+   
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.5;
+    min-width: 5rem;
+   
+    border: 1px solid transparent;
+    border-radius: .25rem;
+  
+    color: #212529;
+    background-color: transparent;
+    &:hover{
+        cursor: pointer;
+    }  
+    &-large {
+        @extend .btn;
+        text-align: center;
+        font-weight: 400;
+        font-size: 2rem;
+        line-height: 2.5;
+        width: 80%;
+        padding: .375rem 1.5rem;
+        margin: 1rem 10%;
+        border-radius: .5rem;
+    }
+ }
+
+@each $name,$color in $theme-colors {
+    .btn-#{$name}{
+        background-color: $color;
+        color: white;
+    }
+    .text-#{$name}{
+        color: $color;
+    }
+    .head-#{$name}{
+        background-color: $color;
+        color: white;
+    }
+    .toast-#{$name}{
+        background-color: $color;
+        width: 80%;
+        color: white;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        margin: 0.5rem;
+    }
+}
+
+$no-of-columns: 12;
+
+$breakpoints: (
+   "xs": 650px,
+   "sm": 950px,
+   "md": 1024px,
+   "lg": 2048px,
+   "xl": 4098px
+);
+ 
+.container{
+   display: block;
+   width: 100%;
+   max-width: 1170px;
+   padding: 0px 1rem;
+   margin: 0px auto;
+   &-fluid{
+       display: flex;
+       flex-direction: column;
+       width: 100%;
+       padding: 1rem 0px;
+   }
+}
+ 
+.row{
+   display: flex;
+   flex-direction: row;
+   flex-wrap: wrap;
+   width: 100%;
+   padding: 0.25rem;
+}
+.tablehead {
+    background-color: map.get($theme-colors,"info");
+}
+.tablerow {
+    background-color: white;
+}
+.col{
+    flex: 1 1 auto;
+    padding: 0 0.25rem;
+    min-width: 10rem;
+}
+.colhead {
+    background-color: map.get($theme-colors,"info");
+    font-weight: bold;
+    text-align: center;
+    color: white;
+}
+
+@for $i from 1 through $no-of-columns {
+    .col-#{$i} {
+        width: ((100%) /  ( $no-of-columns / $i))  ;  
+        padding: 0 0.25rem;
+    }
+}
+
+.no-small {
+    display: none;
+}
+
+@media only screen and (min-width: map.get($breakpoints,"sm")) {
+    .no-small {
+        display: block;
+    }
+}
+
+@each $breakpoint,$value in $breakpoints {
+    @media only screen and (min-width: $value) {
+        @for $i from 1 through $no-of-columns {
+            .col-#{$breakpoint}-#{$i} {
+                width: (100% /  ( $no-of-columns / $i))  ;
+                padding: 0 0.25rem;  
+            }
+        }
+    }
+}
+
+@media screen and (min-width: map.get($breakpoints,"md")) {
+    .nav.responsive {
+        display: none;
+    }
+}
+@media screen and (min-width: map.get($breakpoints,"md")) {
+    #three-lines {
+        display: none;
+    }
+}
+
+.nav {    
+    display: inline-block;
+    min-width: 200;
+    max-width: map.get($breakpoints,"md");
+    z-index: 1500;
+}
+.nav-item {
+    display: block;
+    font-weight: bolder;
+    font-size: 1.5rem;
+    margin-top: 0.75rem;   
+    color: map.get($theme-colors,"primary"); 
+}
+.nav-item:hover {
+    color: map.get($theme-colors,"info");
+}
+
+h1, h2, h3, h4 {
+    margin-block-start: 0;
+}
+
+.hamburger {
+    margin-right:2rem;
+}
+
+@media only screen and (max-width: map.get($breakpoints,"sm")) {
+    .nav {
+        padding: 2rem 1.5rem;
+        margin: 0 auto;
+        border-radius: 0.5rem;
+        border: 1px solid black;
+        position: absolute;
+        top: 3rem;
+        background-color:$back;
+        float: left;
+    }
+}
+@media only screen and (min-width: map.get($breakpoints,"sm")) {
+    .nav {
+        display: block !important;
+        margin-bottom: 1rem;
+        float: right;
+    }
+    .nav-item {
+        display: inline-block;
+        margin-right: 1rem;
+    }
+}
+
+.content {
+    border: 1px solid transparent;
+    border-radius: .5rem;
+    height:100%;
+    min-height: 70vh;
+    background-color: #99999933;
+    padding: 0.5rem;
+}
+@media screen and (min-width: map.get($breakpoints,"md")) {
+    .content {
+        padding: 1rem;
+    }
+    .body {
+        margin: 1em;
+    }
+}
+
+input {
+    margin-top: 5px;
+}
+
+.row-btns {
+    margin-top: 2rem;
+}
+
+form {
+    width: 100%;
+}
+
+.form-select {
+    display: block;
+    width: 100%;
+    padding: .375rem 1.75rem .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    vertical-align: middle;
+    background-color: #fff;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right .75rem center;
+    background-size: 16px 12px;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.form-control {
+    display: block;
+    width: 100%;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.form-control:read-only, .form-select:disabled {
+    background-color: lightgrey;
+    border: 1px solid grey;
+}
+
+.modalview {
+    position: absolute;
+    top: 15%;
+    width: 80vw;
+    left: 10vw;
+    background-color: grey;
+    padding: 1rem;
+    color: white;
+    border-radius: 15px;
+    text-align: center;
+}
+.modalview .icon {
+    position: absolute;
+    right: 2vw;
+}
+.modal.active {
+    display:block
+}
+.modal {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #99999933;
+}
