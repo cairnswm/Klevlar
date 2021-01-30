@@ -1,9 +1,9 @@
 
 class Example1Page extends Page {
-    constructor (elem) {
+    constructor (elem, name) {
         super (elem);
         this.addHeader("Hello World")
-        .addText("Hello World from ")
-        .addText("Klevlar");
+            .addText("Hello World from ")
+            .addText("Klevlar");
     }
 }

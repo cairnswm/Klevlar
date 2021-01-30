@@ -47,6 +47,7 @@ class Base extends baseFunctions {
     constructor(elem) {
         super();
         this.elem = document.getElementById(elem);
+        this.class = ``;
         this.render();
     }
     async show() {
@@ -58,7 +59,7 @@ class Base extends baseFunctions {
         if (!this.elem) {
             return html;
         }
-        this.elem.innerHTML = "<h2>Base</h2>";
+        this.elem.innerHTML = "<h2 class='${this.class}'>Base</h2>";
     }
 }
 
@@ -86,7 +87,8 @@ class Item extends baseFunctions {
 class Button extends Item {
     constructor(name) {
         super();
-        this.name = name;
+        this.name = name; 
+        this.class="btn btn-primary";
         return this;
     }
     onClick(func) {
@@ -94,7 +96,7 @@ class Button extends Item {
         return this;
     }
     render() {
-        return `<button id="${this.id}" class="btn btn-primary" type="button">${this.name}</button>`;
+        return `<button id="${this.id}" class='${this.class}' type="button">${this.name}</button>`;
     }
 }
 
@@ -105,6 +107,7 @@ class Select extends Item {
         this.label = label;
         this.options = options;
         this.defaultvalue = def;
+        this.class = "row";
         return this;
     }
     value = () => {
@@ -130,7 +133,7 @@ class Select extends Item {
                 opts += `<option value="${opt.value}" ${sel}>${opt.text}</option>`
             }
         })        
-        return `<div class="row">
+        return `<div class='${this.class}'>
             <div class="col-4">
                 <label for="${this.name}" ${req}>${this.label}</label>
             </div>
@@ -152,6 +155,7 @@ class Input extends Item {
         this.inputtype = inputtype;
         this.defaultvalue = defaultvalue;
         this.validate = (name, value) => { return true; }
+        this.class = "row";
         return this;
     }
     value = () => {
@@ -161,7 +165,7 @@ class Input extends Item {
         let req = this.required ? "required" : "";
         let def = this.populate ? this.populate() : this.defaultvalue;
         let ro = this.readonly ? "readonly" : "";
-        return `<div id="${this.id}" class="row">` +
+        return `<div id="${this.id}" class='${this.class}'>` +
             (this.inputtype !== "hidden" ? `<div class="col-4">
                 <label for="${this.name}">${this.label}</label>
             </div>` : ``) + 
@@ -186,7 +190,7 @@ class Text extends Item {
         return this.text;
     }
     render() {
-        return `<span id="${this.id}">${this.text}</span>`;
+        return `<span id="${this.id}" class='${this.class}'>${this.text}</span>`;
     }
 }
 
@@ -197,8 +201,7 @@ class Header extends Text {
         return this;
     }
     render() {
-        console.log("Render Header");
-        return `<h${this.level} id="${this.id}">${this.text}</h${this.level}>`;
+        return `<h${this.level} id="${this.id}" class='${this.class}'>${this.text}</h${this.level}>`;
     }
 }
 
@@ -208,6 +211,8 @@ class Modal extends Item {
         this.active = "";
         this.header = header;
         this.display = display;
+        this.class = "row";
+        return this;
     }
     activate(mode = true) {
         this.active = mode ? "active" : "";
@@ -220,7 +225,7 @@ class Modal extends Item {
         this.activate(true)
     }
     async render() {
-        return `<div class="row">
+        return `<div class='${this.class}'>
             <div class="modal ${this.active}" click="(e) => {e.preventDefault()}">
                 <div class="modalview shadow" id="${this.id}">
                     <h1 class="modalheader">
@@ -248,22 +253,7 @@ class Alert extends Item {
         return this;
     }
     render() {
-        return `<div id="${this.id}" class="${this.type}" type="" name="${this.name}">${this.text}</div>`;
-    }
-}
-
-class Container extends Item {
-    constructor(name) {
-        super();
-        this.name = name;
-        return this;
-    }
-    onClick(func) {
-        this.on("click",func);
-        return this;
-    }
-    render() {
-        return `<div class="row"><div id="${this.id}">Container</div></div>`;
+        return `<div id="${this.id}" class="${this.type} ${this.class}" type="" name="${this.name}">${this.text}</div>`;
     }
 }
 
@@ -273,6 +263,7 @@ class HTMLTag extends Item {
         super();
         this.tagtype = tagtype;
         this.content = content;
+        this.class = "row";
         return this;
     }
     onClick(func) {
@@ -280,19 +271,18 @@ class HTMLTag extends Item {
         return this;
     }
     render() {
-        return `<div class="row"><div class="col-12"><${this.tagtype} id="${this.id}">${this.content}</${this.tagtype}></div></div>`;
+        return `<div class='${this.class}'><div class="col-12"><${this.tagtype} id="${this.id}">${this.content}</${this.tagtype}></div></div>`;
     }
 }
 
-// Basic functionality for building a form in a chained declarative format
-// I considered using more generic functions with complex configuration object but decided to keep it all simple functions
-class Page extends Base {
-    constructor(elem, controlGroup = "KlevlarDefault") {
-        super(elem);
+class Container extends Item {
+    constructor(name) {
+        super();
+        this.name = name;
         this.elems = [];
         this.events = [];
-        this.controlGroup = controlGroup;
         this.last = undefined;
+        return this;
     }
     addInput(label, name, inputtype = 'text', defaultvalue = '') { 
         let input = new Input(label, name, inputtype, defaultvalue);
@@ -349,6 +339,10 @@ class Page extends Base {
         this.last = modal;
         return this;
     }
+    class(classString) {
+        this.last.class = classString;
+        return this;
+    }
     // mark latest input as required
     required(value = true) {
         this.last.required = value;
@@ -399,16 +393,7 @@ class Page extends Base {
         }
         return data;
     }
-    show = async () => {
-        super.show(); 
-        // setTimeout needed to give Browser chance to update and set ids etc before triggering afterShow
-        setTimeout(() => {
-            if (this.event["afterShow"]) { 
-                this.event["afterShow"]();
-            }
-        },25);
-    }
-    
+        
     refId = (newId) => {
         if (this.last) {
             delete(controller.elements[this.last.id]);
@@ -427,8 +412,7 @@ class Page extends Base {
     get = (tempId) => {
         return this.elems.find(item => (item.obj ? item.obj.id === tempId : undefined)).obj;
     }
-    render = async () => {
-        console.log("Render Page");
+    _getrender = async () => {
         let html = `<div id="${this.id}" class="${this.controlGroup}">`;
         let buttons = ``;
         if (this.elems) {
@@ -443,11 +427,41 @@ class Page extends Base {
             html += `<div class="row row-btns"><div class="col-12 col-md-12">${buttons}</div></div>`;
         }
         html += "</div>";
+        return html;
+    }
+    render = async () => {
+        let html = await this._getrender();
+        return html;
+    }
+}
+
+// Basic functionality for building a form in a chained declarative format
+// I considered using more generic functions with complex configuration object but decided to keep it all simple functions
+class Page extends Container {
+    constructor(elem, name, controlGroup = "KlevlarDefault") {
+        super(name);
+        this.elem = document.getElementById(elem);
+        this.controlGroup = controlGroup;
+        return this;
+    }
+    show = async () => {
+        $(this.elem).show();
+        this.render();
+        // setTimeout needed to give Browser chance to update and set ids etc before triggering afterShow
+        setTimeout(() => {
+            if (this.event["afterShow"]) { 
+                this.event["afterShow"]();
+            }
+        },25);
+    }
+    render = async () => {
+        let html = await this._getrender();
         if (!this.elem) {
             return html;
         }
         this.elem.innerHTML = html;
     }
+    
 }
 
 class Form extends Page {
@@ -468,9 +482,7 @@ class Form extends Page {
             let data = {}
             let passedAllValidations = true;
             for (var i = 0, element; element = elements[i++];) {
-                if (element.name) {
-                    console.log("Element", element);
-                    
+                if (element.name) {                    
                     // find the internal element and validate it
                     let elem = this.elems.find(item => item.obj && item.obj.name === element.name);
                     if (elem && elem.obj){
@@ -494,23 +506,8 @@ class Form extends Page {
         }
     }
     render = async () => {
-        console.log("Render Form");
         let html = `<form id="${this.id}" class="${this.controlGroup}">`;
-        let buttons = ``;
-        if (this.elems) {
-            for (let index in this.elems) {
-                let element = this.elems[index]          
-                if (element.type === "button") {
-                    buttons += await element.obj.render();
-                }  else {
-                    html += await element.obj.render();
-                }        
-            };
-            if (this.customSubmit) {
-                buttons += `<button class="btn btn-primary" type="submit">Submit</button>`;
-            }
-            html += `<div class="row row-btns"><div class="col-12 col-md-12">${buttons}</div></div>`;
-        }
+        html += await this._getrender();
         html += "</form>";
         if (!this.elem) {
             return html;

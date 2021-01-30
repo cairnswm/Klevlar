@@ -76,14 +76,18 @@ View the index.html in your browser.
 ### Elements and chaining
 To create a page inherit from Page. Then create all the items you want inside the page. To add elements to the page use the internal methods to add the elements. All functions return the page and can thus be chained
 
-``javascript
+```javascript
    this.addHeader("Main",1);
    this.addHeader("Second",2);
 ```
+
 is the same as
+
 ```javascript
    this.addHeader("Main",1).addHeader("Second",2);
 ```
+
+Elements that can be created by chaining are
 
 - addHeader(text, [level = 1])
 - addText(text)
@@ -102,16 +106,18 @@ _Currently only 'submit', 'click','change' events will be triggered_
 ```javascript
   this.addInput("Enter your name").on("change",nameChange);
 ```
+
 Whenever the value within the edit box is changed the `nameChange` function will be called, passing in the event.
 
 To set an event on the Page or form use
+
 ```javascript
   this.when("click", pageClick);
 ```
 
 ### Chainable functions
 
-The following functions are chainable as par tof the form creation
+The following functions are chainable as part of the form creation
 
 - required(value = true) // sets an input field to required
 - readonly(value = true) // sets an input field to readonly
@@ -121,7 +127,7 @@ The following functions are chainable as par tof the form creation
 
 ### Forms
 
-Forms are a special case of a Page. They include functionality to do a submit. When creating a form create an onSubmit method.
+Forms are a special case of a Page. They include functionality to do a submit. When creating a form create an onSubmit method to add asubmit button and it will be called when the button is pressed.
 
 ## Examples
 
@@ -184,3 +190,11 @@ class LoginForm extends Form {
 
 Klevlar currently uses Zepto, a light weight plugin to replace the major functions of jQuery.
 Zepto will be removed in a future version.
+
+
+## TODO
+
+- Create a menu component
+- Create a layout component that can be structured simply and contain multiple pages internally
+- allow classes to be added to each item.
+- Add config objects - maybe as a chained object .config({}).
