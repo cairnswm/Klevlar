@@ -26,8 +26,9 @@ class baseFunctions {
         }
         return str;
     }
-    // Allows triggering of events (eg when click...)
+    // Allows triggering of event (eg when click...)
     when = (type, func) => {
+        console.log("when",this.constructor.name, type, func);
         this.event[type] = func;
         return this;
     }   
@@ -46,9 +47,10 @@ class baseFunctions {
 class Base extends baseFunctions {
     constructor(elem) {
         super();
-        this.elem = document.getElementById(elem);
+        if (elem) {
+            this.elem = document.getElementById(elem);
+        }
         this.class = ``;
-        this.render();
     }
     async show() {
         $(this.elem).show();
@@ -276,11 +278,9 @@ class HTMLTag extends Item {
 }
 
 class Container extends Item {
-    constructor(name) {
+    constructor() {
         super();
-        this.name = name;
         this.elems = [];
-        this.events = [];
         this.last = undefined;
         return this;
     }
@@ -333,6 +333,11 @@ class Container extends Item {
         this.last = container;
         return this;
     }
+    addElem(item) {
+        this.elems.push({type: item.type ? item.type : "item", obj: item});
+        this.last = item;
+        return this;
+    }
     addModal() {
         let modal = new Modal(...arguments);
         this.elems.push({type:"select", obj: modal});
@@ -372,12 +377,12 @@ class Container extends Item {
         return this;
     }
     setEvent = (name,func) => {
-        this.events[name] = func;  
+        this.event[name] = func;  
         return this; 
     }
     callEvent = (name, params) => {
-        if (this.events[name]) {
-            this.events[name](params);
+        if (this.event[name]) {
+            this.event[name](params);
         }
     }
     // Extracts an object with values for each input in the form - used for submitting data to the backend
@@ -417,7 +422,7 @@ class Container extends Item {
         let buttons = ``;
         if (this.elems) {
             for (let index in this.elems) {
-                let element = this.elems[index]          
+                let element = this.elems[index]        
                 if (element.type === "button") {
                     buttons += await element.obj.render();
                 }  else {
@@ -438,8 +443,8 @@ class Container extends Item {
 // Basic functionality for building a form in a chained declarative format
 // I considered using more generic functions with complex configuration object but decided to keep it all simple functions
 class Page extends Container {
-    constructor(elem, name, controlGroup = "KlevlarDefault") {
-        super(name);
+    constructor(elem, controlGroup = "KlevlarDefault") {
+        super();
         this.elem = document.getElementById(elem);
         this.controlGroup = controlGroup;
         return this;
@@ -467,7 +472,6 @@ class Page extends Container {
 class Form extends Page {
     constructor(elem, controlGroup = "KlevlarDefault") {
         super(elem, controlGroup);
-        
         this.event["submit"] = this._submit;
     }
     onSubmit(func) {
@@ -512,6 +516,42 @@ class Form extends Page {
         if (!this.elem) {
             return html;
         }
+        this.elem.innerHTML = html;
+    }
+}
+
+class PageController extends Base {
+    constructor(elem) {
+        console.log("PageController")
+        super(elem);
+        this.pages = [];
+        this.activePage = "";
+        this.last;
+        return this;
+    }
+    addPage(pageName, page, isDefault = false) {
+        console.log(this.activePage)
+        this.pages[pageName] = page;
+        if (isDefault || !this.activePage) {
+            this.activePage = page;
+            this.activePageName = pageName;
+        }
+        this.last = page;
+        return this;
+    }
+    setPage(pageName) {
+        this.activePage = this.pages[pageName];
+        this.activePageName = pageName;
+        this.show();
+        return this;
+    }
+    on(type, func) {
+        this.last.when(type,func);
+        return this;
+    }
+    async render () {
+        console.log(this);
+        let html = await this.activePage.render();
         this.elem.innerHTML = html;
     }
 }
