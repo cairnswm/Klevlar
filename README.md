@@ -1,6 +1,6 @@
 # Klevlar
 
-An Object Orientated Front End library for Javascript.
+An extendable Object Orientated Front End library for Javascript.
 
 ## Usage
 

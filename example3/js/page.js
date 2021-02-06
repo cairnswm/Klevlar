@@ -3,9 +3,8 @@ class Example2Page extends Form {
     constructor (elem) {
         super (elem);
         this.addHeader("Hello").refId("Hello")
-            .addElem(new FormInput("Name","inputName")).refId("inputName")
-            
-            .addElem(new FormSelect("Age","SelectAge",[10,20,30,40,50])).refId("SelectAge")
+            .addElem(new FormInput("Name","inputName")).refId("inputName").populate(() => { return "Will"; })
+            .addElem(new FormSelect("Age","SelectAge",[10,20,30,40,50],20)).refId("SelectAge")
             .onSubmit((e, data) => {
                 let elem = this.get("Hello");
                 elem.class = ("red");

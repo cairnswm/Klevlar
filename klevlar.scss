@@ -19,7 +19,6 @@ $back: lightgrey;
 
 body {
     font-family: Arial, Helvetica, sans-serif;
-    background: url("/images/hospital1.jpg") no-repeat center center fixed;
     
     background-size: cover;
     margin: 0.5em;
@@ -150,7 +149,7 @@ $breakpoints: (
     @media only screen and (min-width: $value) {
         @for $i from 1 through $no-of-columns {
             .col-#{$breakpoint}-#{$i} {
-                width: (100% /  ( $no-of-columns / $i))  ;
+                width: (99% /  ( $no-of-columns / $i))  ;
                 padding: 0 0.25rem;  
             }
         }

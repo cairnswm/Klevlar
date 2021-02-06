@@ -69,7 +69,7 @@ class Base extends baseFunctions {
 class Item extends baseFunctions {
     constructor() {
         super();
-        this.classes = ``;
+        this.classes = '';
     }
     render() {
         return "<h2>Item</h2>";
@@ -163,7 +163,11 @@ class Container extends Item {
         return this;
     }
     class(classString) {
-        this.last.classes = classString;
+        if (this.last) {
+            this.last.classes = classString;
+        } else {
+            this.classes = classString;
+        }
         return this;
     }
     // mark latest input as required
@@ -233,7 +237,7 @@ class Container extends Item {
         return this.elems.find(item => (item.obj ? item.obj.id === tempId : undefined)).obj;
     }
     _getrender = async () => {
-        let html = `<div id="${this.id}" class="${this.classes} ${this.controlGroup}">`;
+        let html = `<div id="${this.id}" class="${this.classes}">`;
         let buttons = ``;
         if (this.elems) {
             for (let index in this.elems) {
@@ -279,6 +283,9 @@ class Select extends Item {
         this.options = options;
         this.defaultvalue = def;
         this.classes = "row";
+        this.validate = (name, value) => { 
+            return true; 
+        }
         return this;
     }
     value = () => {
@@ -367,6 +374,7 @@ class FormControl extends Item {
         this.value = () => { 
             return this.input.value(); 
         }
+        this.classes = "row";
     }
     set readonly(val) {
         this.input.readonly = val;
@@ -379,8 +387,10 @@ class FormControl extends Item {
             this.input.defaultvalue = val;
         }
     }
-    populate() {
-        return "";
+    set populate(func) {        
+        if (this.input) {
+            this.input.populate = func;
+        }
     }
     set readonly(value) {
         this.input.readonly = value;
@@ -409,9 +419,8 @@ class FormInput extends FormControl {
     constructor(label, name = undefined, inputtype = 'text', defaultvalue = '') {
         super(label, name);
         this.inputtype = inputtype;
-        this.defaultvalue = defaultvalue;
         this.input = new Input(name,inputtype,defaultvalue)
-        this.populate = () => { return this.defaultvalue; }
+        this.defaultvalue = defaultvalue;
         this.input.populate = this.populate;
     }
 }
@@ -420,9 +429,8 @@ class FormSelect extends FormControl {
     constructor(label, name, options, def) {
         super(label, name);
         this.options = options;
-        this.defaultvalue = def;
-        this.input = new Select(name, options, def);        
-        this.populate = () => { return this.options; }
+        this.input = new Select(name, options, def);  
+        this.defaultvalue = def;    
         this.input.populate = this.populate;
     }
 }
