@@ -50,7 +50,7 @@ class Base extends baseFunctions {
         if (elem) {
             this.elem = document.getElementById(elem);
         }
-        this.class = ``;
+        this.classes = ``;
     }
     async show() {
         $(this.elem).show();
@@ -61,7 +61,7 @@ class Base extends baseFunctions {
         if (!this.elem) {
             return html;
         }
-        this.elem.innerHTML = "<h2 class='${this.class}'>Base</h2>";
+        this.elem.innerHTML = `<h2 class='${this.classes}'>Base</h2>`;
     }
 }
 
@@ -69,6 +69,7 @@ class Base extends baseFunctions {
 class Item extends baseFunctions {
     constructor() {
         super();
+        this.classes = ``;
     }
     render() {
         return "<h2>Item</h2>";
@@ -81,199 +82,16 @@ class Item extends baseFunctions {
         this.readonly = value;
         return this;
     }
-    value = () => {
-        return;
-    }
-}
-
-class Button extends Item {
-    constructor(name) {
-        super();
-        this.name = name; 
-        this.class="btn btn-primary";
-        return this;
-    }
-    onClick(func) {
-        this.when("click",func);
-        return this;
-    }
-    render() {
-        return `<button id="${this.id}" class='${this.class}' type="button">${this.name}</button>`;
-    }
-}
-
-class Select extends Item {
-    constructor(label, name, options, def) {
-        super();
-        this.name = name;
-        this.label = label;
-        this.options = options;
-        this.defaultvalue = def;
-        this.class = "row";
-        return this;
-    }
-    value = () => {
-        return document.getElementById(`${this.id}.value`).value;
-    }
-    render = async () => {
-        let opts = '';
-        
-        let req = this.required ? "required" : "";
-        let ro = this.readonly ? "readonly" : "";
-
-        if (this.populate) {
-            let x = await this.populate();
-            this.options = x;
+    setId(newId) {
+        if (this.name && this.name === this.id) {
+            this.name = newId;
         }
-        let def = this.defaultvalue;
-        this.options.forEach(opt => {
-            if (typeof opt === "string") {
-                let sel = (opt == def) ? "selected" : "";
-                opts += `<option value="${opt}" ${sel}>${opt}</option>`
-            } else if (typeof opt === "object") {  
-                let sel = (opt.value == def || opt.text == def) ? "selected" : "";              
-                opts += `<option value="${opt.value}" ${sel}>${opt.text}</option>`
-            }
-        })        
-        return `<div class='${this.class}'>
-            <div class="col-4">
-                <label for="${this.name}" ${req}>${this.label}</label>
-            </div>
-            <div class="col-8">
-                <select class="form-select" name="${this.name}" id="${this.id}.value" ${req} ${ro}>${opts}</select>
-            </div>
-        </div>`
-    }
-}
+        this.id = newId;
 
-class Input extends Item {
-    constructor(label, name = undefined, inputtype = 'text', defaultvalue = '') {
-        super();
-        if (!name) {
-            name = this.id;
-        }
-        this.name = name;
-        this.label = label;
-        this.inputtype = inputtype;
-        this.defaultvalue = defaultvalue;
-        this.validate = (name, value) => { return true; }
-        this.class = "row";
-        return this;
+        return this
     }
-    value = () => {
-        return document.getElementById(`${this.id}.value`).value;
-    }
-    render() {
-        let req = this.required ? "required" : "";
-        let def = this.populate ? this.populate() : this.defaultvalue;
-        let ro = this.readonly ? "readonly" : "";
-        return `<div id="${this.id}" class='${this.class}'>` +
-            (this.inputtype !== "hidden" ? `<div class="col-4">
-                <label for="${this.name}">${this.label}</label>
-            </div>` : ``) + 
-            `<div class="col-8">
-                <input class="form-control" type="${this.inputtype}" name="${this.name}" id="${this.id}.value" value="${def}" ${req} ${ro} />
-            </div>
-        </div>`;
-    }
-}
-
-class Text extends Item {
-    constructor(text) {
-        super();
-        this.text = text;
-        return this;
-    }
-    setText = (newText) => {
-        this.text = newText;
-        this.refresh();
-    }
-    value = () => {
-        return this.text;
-    }
-    render() {
-        return `<span id="${this.id}" class='${this.class}'>${this.text}</span>`;
-    }
-}
-
-class Header extends Text {
-    constructor(text, level) {
-        super(text);
-        this.level = level;
-        return this;
-    }
-    render() {
-        return `<h${this.level} id="${this.id}" class='${this.class}'>${this.text}</h${this.level}>`;
-    }
-}
-
-class Modal extends Item {
-    constructor(header, display) {
-        super();
-        this.active = "";
-        this.header = header;
-        this.display = display;
-        this.class = "row";
-        return this;
-    }
-    activate(mode = true) {
-        this.active = mode ? "active" : "";
-        this.refresh();
-    }
-    close() {
-        this.activate(false)
-    }
-    open() {
-        this.activate(true)
-    }
-    async render() {
-        return `<div class='${this.class}'>
-            <div class="modal ${this.active}" click="(e) => {e.preventDefault()}">
-                <div class="modalview shadow" id="${this.id}">
-                    <h1 class="modalheader">
-                        ${this.header}
-                    </h1>
-                    <div class="modalbody">
-                        ${await this.display.render()}
-                    </div>
-                </div>
-            </div></div>`
-    }
-}
-
-class Alert extends Item {
-    constructor(name) {
-        super();
-        this.name = name;
-        this.text = "";
-        this.type = "";
-        this.on('click',(e) => { this.text = "" });
-        return this;
-    }
-    onClick(func) {
-        this.on("click",func);
-        return this;
-    }
-    render() {
-        return `<div id="${this.id}" class="${this.type} ${this.class}" type="" name="${this.name}">${this.text}</div>`;
-    }
-}
-
-// Allows the cration of any tag into the Page/form. Specifically used for items such as Canvas
-class HTMLTag extends Item {
-    constructor(tagtype, content) {
-        super();
-        this.tagtype = tagtype;
-        this.content = content;
-        this.class = "row";
-        return this;
-    }
-    onClick(func) {
-        this.on("click",func);
-        return this;
-    }
-    render() {
-        return `<div class='${this.class}'><div class="col-12"><${this.tagtype} id="${this.id}">${this.content}</${this.tagtype}></div></div>`;
+    set class(classString) {
+        this.classes = classString;
     }
 }
 
@@ -345,7 +163,7 @@ class Container extends Item {
         return this;
     }
     class(classString) {
-        this.last.class = classString;
+        this.last.classes = classString;
         return this;
     }
     // mark latest input as required
@@ -402,10 +220,7 @@ class Container extends Item {
     refId = (newId) => {
         if (this.last) {
             delete(controller.elements[this.last.id]);
-            if (this.last.name && this.last.name === this.last.id) {
-                this.last.name = newId;
-            }
-            this.last.id = newId;
+            this.last.setId(newId);
             controller.elements[newId] = this.last;
         } else {
             delete(controller.elements[this.id]);
@@ -418,7 +233,7 @@ class Container extends Item {
         return this.elems.find(item => (item.obj ? item.obj.id === tempId : undefined)).obj;
     }
     _getrender = async () => {
-        let html = `<div id="${this.id}" class="${this.controlGroup}">`;
+        let html = `<div id="${this.id}" class="${this.classes} ${this.controlGroup}">`;
         let buttons = ``;
         if (this.elems) {
             for (let index in this.elems) {
@@ -439,6 +254,278 @@ class Container extends Item {
         return html;
     }
 }
+
+
+class Button extends Item {
+    constructor(name) {
+        super();
+        this.name = name; 
+        this.classes="btn btn-primary";
+        return this;
+    }
+    onClick(func) {
+        this.when("click",func);
+        return this;
+    }
+    render() {
+        return `<button id="${this.id}" class='${this.classes}' type="button">${this.name}</button>`;
+    }
+}
+
+class Select extends Item {
+    constructor(name, options, def) {
+        super();
+        this.name = name;
+        this.options = options;
+        this.defaultvalue = def;
+        this.classes = "row";
+        return this;
+    }
+    value = () => {
+        return document.getElementById(`${this.id}.value`).value;
+    }
+    render = async () => {
+        let opts = '';
+        let req = this.required ? "required" : "";
+        let ro = this.readonly ? "readonly" : "";
+        if (this.populate) {
+            let x = await this.populate();
+            this.options = x;
+        }
+        let def = this.defaultvalue;
+        this.options.forEach(opt => {
+            if (typeof opt === "string" || typeof opt === "number") {
+                let sel = (opt == def) ? "selected" : "";
+                opts += `<option value="${opt}" ${sel}>${opt}</option>`
+            } else if (typeof opt === "object") {  
+                let sel = (opt.value == def || opt.text == def) ? "selected" : "";              
+                opts += `<option value="${opt.value}" ${sel}>${opt.text}</option>`
+            }
+        })        
+        return `<select class='${this.classes}' class="form-select" name="${this.name}" id="${this.id}.value" ${req} ${ro}>${opts}</select>`
+    }
+}
+
+
+class Input extends Item {
+    constructor(name = undefined, inputtype = 'text', defaultvalue = '') {
+        super();
+        if (!name) {
+            name = this.id;
+        }
+        this.name = name;
+        this.inputtype = inputtype;
+        this.defaultvalue = defaultvalue;
+        this.validate = (name, value) => { 
+            return true; 
+        }
+        this.classes = "row";
+        return this;
+    }
+    value = () => {
+        return document.getElementById(`${this.id}.value`).value;
+    }
+    render() {
+        let req = this.required ? "required" : "";
+        let def = this.populate ? this.populate() : this.defaultvalue;
+        let ro = this.readonly ? "readonly" : "";
+        return `<input class="form-control" type="${this.inputtype}" name="${this.name}" id="${this.id}.value" value="${def}" ${req} ${ro} />`;
+    }
+}
+
+class Label extends Item {
+    constructor(text, forInput) {
+        super();
+        this.text = text;
+        this.for, forInput;
+        return this;
+    }
+    setText = (newText) => {
+        this.text = newText;
+        this.refresh();
+    }
+    value = () => {
+        return this.text;
+    }
+    render() {
+        return `<Label id="${this.id}" class='${this.classes}' for='${this.for}'>${this.text}</span>`;
+    }
+}
+
+class FormControl extends Item {
+    constructor(label, name = undefined) {
+        super();
+        if (!name) {
+            name = randomString(10);
+        }
+        this.name = name;
+        this.label = new Label(label, name);
+        this.input;
+        this.validate = (name, value) => { 
+            return this.input.validate(name,value); 
+        }
+        this.value = () => { 
+            return this.input.value(); 
+        }
+    }
+    set readonly(val) {
+        this.input.readonly = val;
+    }
+    set required(val) {
+        this.input.required = val;
+    }
+    set defaultvalue(val) {
+        if (this.input) {
+            this.input.defaultvalue = val;
+        }
+    }
+    populate() {
+        return "";
+    }
+    set readonly(value) {
+        this.input.readonly = value;
+    }
+    set required(value) {
+        this.input.required = value;
+    }
+    setId(newId) {
+        super.setId(newId);
+        this.label.setId(newId+"label");
+        this.input.setId(newId);
+    }
+    render = async() => {
+        return `<div name="${this.name}" id="${this.id}" class='${this.classes}'>` +
+            (this.inputtype !== "hidden" ? `<div class="col-4">
+                ${this.label.render()}
+            </div>` : ``) + 
+            `<div class="col-8">
+                ${await this.input.render()}
+            </div>
+        </div>`;
+    }
+}
+
+class FormInput extends FormControl {
+    constructor(label, name = undefined, inputtype = 'text', defaultvalue = '') {
+        super(label, name);
+        this.inputtype = inputtype;
+        this.defaultvalue = defaultvalue;
+        this.input = new Input(name,inputtype,defaultvalue)
+        this.populate = () => { return this.defaultvalue; }
+        this.input.populate = this.populate;
+    }
+}
+
+class FormSelect extends FormControl {
+    constructor(label, name, options, def) {
+        super(label, name);
+        this.options = options;
+        this.defaultvalue = def;
+        this.input = new Select(name, options, def);        
+        this.populate = () => { return this.options; }
+        this.input.populate = this.populate;
+    }
+}
+
+class Text extends Item {
+    constructor(text) {
+        super();
+        this.text = text;
+        return this;
+    }
+    setText = (newText) => {
+        this.text = newText;
+        this.refresh();
+    }
+    value = () => {
+        return this.text;
+    }
+    render() {
+        return `<span id="${this.id}" class='${this.classes}'>${this.text}</span>`;
+    }
+}
+
+class Header extends Text {
+    constructor(text, level) {
+        super(text);
+        this.level = level;
+        return this;
+    }
+    render() {
+        return `<h${this.level} id="${this.id}" class='${this.classes}'>${this.text}</h${this.level}>`;
+    }
+}
+
+class Modal extends Item {
+    constructor(header, display) {
+        super();
+        this.active = "";
+        this.header = header;
+        this.display = display;
+        this.classes = "row";
+        return this;
+    }
+    activate(mode = true) {
+        this.active = mode ? "active" : "";
+        this.refresh();
+    }
+    close() {
+        this.activate(false)
+    }
+    open() {
+        this.activate(true)
+    }
+    async render() {
+        return `<div class='${this.classes}'>
+            <div class="modal ${this.active}" click="(e) => {e.preventDefault()}">
+                <div class="modalview shadow" id="${this.id}">
+                    <h1 class="modalheader">
+                        ${this.header}
+                    </h1>
+                    <div class="modalbody">
+                        ${await this.display.render()}
+                    </div>
+                </div>
+            </div></div>`
+    }
+}
+
+class Alert extends Item {
+    constructor(name) {
+        super();
+        this.name = name;
+        this.text = "";
+        this.type = "";
+        this.on('click',(e) => { this.text = "" });
+        return this;
+    }
+    onClick(func) {
+        this.on("click",func);
+        return this;
+    }
+    render() {
+        return `<div id="${this.id}" class="${this.type} ${this.classes}" type="" name="${this.name}">${this.text}</div>`;
+    }
+}
+
+// Allows the cration of any tag into the Page/form. Specifically used for items such as Canvas
+class HTMLTag extends Item {
+    constructor(tagtype, content) {
+        super();
+        this.tagtype = tagtype;
+        this.content = content;
+        this.classes = "row";
+        return this;
+    }
+    onClick(func) {
+        this.on("click",func);
+        return this;
+    }
+    render() {
+        return `<div class='${this.classes}'><div class="col-12"><${this.tagtype} id="${this.id}">${this.content}</${this.tagtype}></div></div>`;
+    }
+}
+
 
 // Basic functionality for building a form in a chained declarative format
 // I considered using more generic functions with complex configuration object but decided to keep it all simple functions
@@ -480,26 +567,16 @@ class Form extends Page {
     }
     _submit = (e) => {
         e.preventDefault();
-        if (this.customSubmit) {            
-            // create a response object to allow submit function to save the data
-            var elements = e.target.elements;
+        if (this.customSubmit) {                       
             let data = {}
             let passedAllValidations = true;
-            for (var i = 0, element; element = elements[i++];) {
-                if (element.name) {                    
-                    // find the internal element and validate it
-                    let elem = this.elems.find(item => item.obj && item.obj.name === element.name);
-                    if (elem && elem.obj){
-                        if (typeof elem.obj.validate === "function") {
-                            let elementValidation = elem.obj.validate(elem.obj.name, element.value);
-                            passedAllValidations = passedAllValidations && elementValidation;
-                        }
-                        if (element.type != "submit") {
-                            data[element.name] = elem.obj.value();
-                            //data[element.name] = $("#"+element.id).val();
-                        }
-                        
+            for (var i = 0, elem; elem = this.elems[i++];) {
+                if (typeof elem.obj.value === "function") {
+                    if (typeof elem.obj.validate === "function") {
+                        let elementValidation = elem.obj.validate(elem.obj.id, elem.obj.value());
+                        passedAllValidations = passedAllValidations && elementValidation;
                     }
+                    data[elem.obj.id] = elem.obj.value();
                 }
             }
             if (passedAllValidations) {
@@ -508,6 +585,26 @@ class Form extends Page {
                 return false;
             }
         }
+    }
+    _getrender = async () => {
+        let html = `<div id="${this.id}" class="${this.classes} ${this.controlGroup}">`;
+        let buttons = ``;
+        if (this.elems) {
+            for (let index in this.elems) {
+                let element = this.elems[index]        
+                if (element.type === "button") {
+                    buttons += await element.obj.render();
+                }  else {
+                    html += await element.obj.render();
+                }        
+            };
+            if (this.customSubmit) {
+                buttons += `<button type='submit'>Submit</button>`;
+            }
+            html += `<div class="row row-btns"><div class="col-12 col-md-12">${buttons}</div></div>`;
+        }
+        html += "</div>";
+        return html;
     }
     render = async () => {
         let html = `<form id="${this.id}" class="${this.controlGroup}">`;

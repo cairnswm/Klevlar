@@ -195,7 +195,7 @@ h1, h2, h3, h4 {
 
 @media only screen and (max-width: map.get($breakpoints,"sm")) {
     .nav {
-        padding: 2rem 1.5rem;
+        padding: 0.5rem 1.5rem;
         margin: 0 auto;
         border-radius: 0.5rem;
         border: 1px solid black;
@@ -254,7 +254,6 @@ form {
     font-weight: 400;
     line-height: 1.5;
     color: #212529;
-    vertical-align: middle;
     background-color: #fff;
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
     background-repeat: no-repeat;

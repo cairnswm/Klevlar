@@ -6,6 +6,9 @@ class pageManager extends PageController {
                 console.log("setPage", this); 
                 this.setPage("page2") 
             })
-            .addPage("page2", new(Example3Page));
+            .addPage("page2", new(Example3Page)).on("return", () => { 
+                console.log("setPage1", this); 
+                this.setPage("page1") 
+            });
     }
 }
