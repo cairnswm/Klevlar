@@ -28,7 +28,6 @@ class baseFunctions {
     }
     // Allows triggering of event (eg when click...)
     when = (type, func) => {
-        console.log("when",this.constructor.name, type, func);
         this.event[type] = func;
         return this;
     }   
@@ -219,6 +218,12 @@ class Container extends Item {
             }
         }
         return data;
+    }
+    internal = (key,value) => {
+        console.log(key,value)
+        this.last[key] = value;
+        console.log(this);
+        return this;
     }
         
     refId = (newId) => {
@@ -632,7 +637,6 @@ class Form extends Page {
 
 class PageController extends Base {
     constructor(elem) {
-        console.log("PageController")
         super(elem);
         this.pages = [];
         this.activePage = "";
@@ -640,7 +644,6 @@ class PageController extends Base {
         return this;
     }
     addPage(pageName, page, isDefault = false) {
-        console.log(this.activePage)
         this.pages[pageName] = page;
         if (isDefault || !this.activePage) {
             this.activePage = page;
@@ -660,7 +663,6 @@ class PageController extends Base {
         return this;
     }
     async render () {
-        console.log(this);
         let html = await this.activePage.render();
         this.elem.innerHTML = html;
     }

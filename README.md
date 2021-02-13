@@ -139,6 +139,14 @@ Example 1 is a hello world  example
 
 Example 2 is a hello 'name' example where your name is asked and the header changes to greet you by name
 
+### Example 3
+
+Add a page controller to switch between pages or by menu
+
+### Example 4
+
+Extending Klevlar by adding a checkbox element, a form checkbox and modifying the Container prototype to add an addCheckbox helper
+
 ### Example login form
 
 ```javascript
