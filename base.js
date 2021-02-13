@@ -105,60 +105,60 @@ class Container extends Item {
     addInput(label, name, inputtype = 'text', defaultvalue = '') { 
         let input = new Input(label, name, inputtype, defaultvalue);
         this.last = input;
-        this.elems.push({type: "input", obj: input });
+        this.addElem({type: "input", obj: input });
         return this;
     }
     addHeader(header, level = 1) {
         header = new Header(header,level);
         this.last = header;
-        this.elems.push({type: "header", obj: header});
+        this.addElem({type: "header", obj: header});
         return this;
     }
     addHtml(htmltag,content) {
         let tag = new HTMLTag(htmltag,content);
         this.last = tag;
-        this.elems.push({type: "html", obj: tag });
+        this.addElem({type: "html", obj: tag });
         return this;
     }
     addText(text) {        
         let txt = new Text(text);
         this.last = txt;
-        this.elems.push({type: "text", obj: txt });
+        this.addElem({type: "text", obj: txt });
         return this;
     }
     addAlert(text) {
         let alert = new Alert(text);
-        this.elems.push({type: "alert", obj: alert });
+        this.addElem({type: "alert", obj: alert });
         this.last = alert;
         return this;
     }
     addButton(text, func) {
         let button = new Button(text);
         button.onClick(func);
-        this.elems.push({type: "button", obj: button });
+        this.addElem({type: "button", obj: button });
         this.last = button;
         return this;
     }
     addSelect(label, name, options = []) {
         let select = new Select(label, name, options);
-        this.elems.push({type:"select", obj: select});
+        this.addElem({type:"select", obj: select});
         this.last = select;
         return this;
     }
     addContainer() {
         let container = new Container(...arguments);
-        this.elems.push({type:"container", obj: container});
+        this.addElem({type:"container", obj: container});
         this.last = container;
         return this;
     }
     addElem(item) {
-        this.elems.push({type: item.type ? item.type : "item", obj: item});
-        this.last = item;
+        this.elems.push({type: item.type ? item.type : "item", obj: item.obj ? item.obj : item });
+        this.last = item.obj ? item.obj : item;
         return this;
     }
     addModal() {
         let modal = new Modal(...arguments);
-        this.elems.push({type:"select", obj: modal});
+        this.addElem({type:"modal", obj: modal});
         this.last = modal;
         return this;
     }
@@ -259,7 +259,6 @@ class Container extends Item {
     }
 }
 
-
 class Button extends Item {
     constructor(name) {
         super();
@@ -359,7 +358,7 @@ class Label extends Item {
     }
 }
 
-class FormControl extends Item {
+class FormControl extends Container {
     constructor(label, name = undefined) {
         super();
         if (!name) {
@@ -379,7 +378,7 @@ class FormControl extends Item {
     set readonly(val) {
         this.input.readonly = val;
     }
-    set required(val) {
+    required(val = true) {
         this.input.required = val;
     }
     set defaultvalue(val) {
@@ -392,16 +391,22 @@ class FormControl extends Item {
             this.input.populate = func;
         }
     }
-    set readonly(value) {
+    set readonly(value = true) {
         this.input.readonly = value;
     }
-    set required(value) {
+    set required(value = true) {
         this.input.required = value;
     }
     setId(newId) {
         super.setId(newId);
         this.label.setId(newId+"label");
         this.input.setId(newId);
+    }
+    addElem(item) {
+        this.elems.push({type: item.type ? item.type : "item", obj: item.obj ? item.obj : item });
+        this.input = item;
+        this.last = item;
+        return this;
     }
     render = async() => {
         return `<div name="${this.name}" id="${this.id}" class='${this.classes}'>` +
@@ -535,8 +540,6 @@ class HTMLTag extends Item {
 }
 
 
-// Basic functionality for building a form in a chained declarative format
-// I considered using more generic functions with complex configuration object but decided to keep it all simple functions
 class Page extends Container {
     constructor(elem, controlGroup = "KlevlarDefault") {
         super();
@@ -564,6 +567,8 @@ class Page extends Container {
     
 }
 
+// Basic functionality for building a form in a chained declarative format
+// I considered using more generic functions with complex configuration object but decided to keep it all simple functions
 class Form extends Page {
     constructor(elem, controlGroup = "KlevlarDefault") {
         super(elem, controlGroup);
